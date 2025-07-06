@@ -56,8 +56,8 @@
     <div class="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-4">
         <!-- Main Simulation Area -->
         <div class="flex-grow flex flex-col items-center justify-center">
-            <img src="https://kokanp.github.io/EvolutionBob/img/EvolutionBobLogo.webp" alt="EvolutionBob Logo" class="w-48 h-48 mb-4">
-            <h1 class="text-2xl font-bold mb-4 text-teal-300">EvolutionBob</h1>
+            <img src="https://kokanp.github.io/EvolutionBob/img/EvolutionBobLogo.webp" alt="EvolutionBob Logo" class="w-48 h-48 mb-2">
+            <h1 class="text-lg font-light mb-4 text-teal-300">A Life Sim for Simple People</h1>
             <div class="relative bg-gray-800 border-4 border-teal-400 rounded-lg shadow-2xl" id="canvas-container">
                 <canvas id="ecosystemCanvas"></canvas>
                 <div id="tooltip" class="tooltip"></div>
@@ -211,6 +211,7 @@
                     <p>Omnivores: <span id="omnivoreStat">0</span></p>
                 </div>
             </div>
+            <div class="text-xs text-gray-500 text-right w-full pr-2" id="version-display">v0.6</div>
         </div>
     </div>
 
@@ -644,34 +645,51 @@
             function parseAndApplySettings(text) {
                 try {
                     const lines = text.split('\n');
+                    let currentSection = null;
                     let currentSpecies = null;
+                    
                     const paramMap = {
                         'Max Energy': 'maxEnergy', 'Reproduce Cost': 'reproduceCost', 'Reproduce Chance': 'reproduceChance', 'Energy Gain': 'energyGain', 'Reproduction Energy': 'reproduceEnergy', 'Energy Decay': 'energyDecay', 'Max Age': 'maxAge', 'Search Radius': 'searchRadius', 'Hunger Threshold': 'hungerThreshold', 'Search Cooldown': 'searchCooldown', 'Combat Bonus': 'combatBonus'
                     };
+                    const populationMap = { 'Plants': plantSlider, 'Herbivores': herbivoreSlider, 'Carnivores': carnivoreSlider, 'Omnivores': omnivoreSlider };
 
                     for (const line of lines) {
                         const trimmedLine = line.trim();
-                        if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
-                            const speciesName = trimmedLine.substring(1, trimmedLine.length - 1).toLowerCase();
-                            if (config[speciesName]) {
-                                currentSpecies = speciesName;
-                            }
-                        } else if (currentSpecies && trimmedLine.includes(':')) {
+                        if (trimmedLine.startsWith('--')) continue;
+
+                        if (trimmedLine === '[Initial Population]') { currentSection = 'population'; continue; }
+                        if (trimmedLine === '[Advanced Parameters]') { currentSection = 'advanced'; continue; }
+
+                        if (currentSection === 'population' && trimmedLine.includes(':')) {
                             const [key, value] = trimmedLine.split(/:\s*/);
-                            const paramKey = paramMap[key];
-                            if (paramKey && config[currentSpecies][paramKey] !== undefined) {
-                                let parsedValue = parseFloat(value.replace('%', ''));
-                                if (paramKey === 'reproduceChance' || paramKey === 'hungerThreshold') {
-                                    config[currentSpecies][paramKey] = parsedValue / 100;
-                                } else if (paramKey === 'combatBonus') {
-                                    config[currentSpecies][paramKey] = 1 + (parsedValue / 100);
-                                } else {
-                                    config[currentSpecies][paramKey] = parsedValue;
+                            if (populationMap[key]) {
+                                populationMap[key].value = parseFloat(value.replace('%', ''));
+                            }
+                        } else if (currentSection === 'advanced') {
+                            if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+                                const speciesName = trimmedLine.substring(1, trimmedLine.length - 1).toLowerCase();
+                                if (config[speciesName]) currentSpecies = speciesName;
+                            } else if (currentSpecies && trimmedLine.includes(':')) {
+                                const [key, value] = trimmedLine.split(/:\s*/);
+                                const paramKey = paramMap[key];
+                                if (paramKey && config[currentSpecies][paramKey] !== undefined) {
+                                    let parsedValue = parseFloat(value.replace('%', ''));
+                                    if (paramKey === 'reproduceChance' || paramKey === 'hungerThreshold') {
+                                        config[currentSpecies][paramKey] = parsedValue / 100;
+                                    } else if (paramKey === 'combatBonus') {
+                                        config[currentSpecies][paramKey] = 1 + (parsedValue / 100);
+                                    } else {
+                                        config[currentSpecies][paramKey] = parsedValue;
+                                    }
                                 }
                             }
                         }
                     }
                     updateAdvancedSettingsUI();
+                    plantPercentLabel.textContent = plantSlider.value;
+                    herbivorePercentLabel.textContent = herbivoreSlider.value;
+                    carnivorePercentLabel.textContent = carnivoreSlider.value;
+                    omnivorePercentLabel.textContent = omnivoreSlider.value;
                     resetSimulation();
                 } catch (error) {
                     console.error("Failed to parse settings file:", error);
