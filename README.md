@@ -4,11 +4,11 @@ A dynamic and interactive simulation of a virtual ecosystem where different spec
 
 The entire simulation runs in a single HTML file, leveraging modern JavaScript for the logic and Tailwind CSS for a clean, responsive user interface.
 
-![Simulation Screenshot](https://i.imgur.com/rG7gCjS.png)
+
 
 ## The Journey
 
-This simlation was developed iteratively, with each step revealing new, interesting, and often unexpected challenges. We started with a simple grid and three basic species, and through a process of testing, observation, and problem-solving, we identified and overcame several performance bottlenecks and balancing issues. This journey led to the implementation of sophisticated features like spatial grids, hunger mechanics, and search cooldowns, transforming a simple simulation into a robust tool for ecological modeling.
+This simulation was developed iteratively, with each step revealing new, interesting, and often unexpected challenges. We started with a simple grid and three basic species, and through a process of testing, observation, and problem-solving, we identified and overcame several performance bottlenecks and balancing issues. This journey led to the implementation of sophisticated features like spatial grids, hunger mechanics, and search cooldowns, transforming a simple simulation into a robust tool for ecological modeling.
 
 ## Features
 
