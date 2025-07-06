@@ -606,6 +606,7 @@
             herbivoreHistory.splice(0, herbivoreHistory.length - 1000);
             carnivoreHistory.splice(0, carnivoreHistory.length - 1000);
             omnivoreHistory.splice(0, omnivoreHistory.length - 1000);
+            populationChart.options.scales.x.min = timeHistory[0];
         }
 
         populationChart.update();
