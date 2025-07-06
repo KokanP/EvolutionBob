@@ -561,58 +561,68 @@
                 });
             }
 
-            function simulationStep() {
-                if (!simulationRunning) return;
-                updateSpatialGrid();
-                const cellsWithFights = new Set();
-                for (const org of organisms) {
-                    if (!(org instanceof Carnivore)) continue;
-                    const cellKey = `${org.x},${org.y}`;
-                    if (cellsWithFights.has(cellKey)) continue;
-                    const cell = spatialGrid[org.y][org.x];
-                    const carnivoresInCell = cell.filter(o => o instanceof Carnivore);
-                    const omnivoresInCell = cell.filter(o => o instanceof Omnivore);
-                    if (carnivoresInCell.length > 0 && omnivoresInCell.length > 0) {
-                        const carnivore = carnivoresInCell[0];
-                        const omnivore = omnivoresInCell[0];
-                        const carnivorePower = carnivore.energy * carnivore.combatBonus;
-                        if (carnivorePower >= omnivore.energy) {
-                            omnivore.die();
-                            carnivore.energy = Math.min(carnivore.maxEnergy, carnivore.energy + omnivore.energy / 2);
-                        } else {
-                            carnivore.die();
-                            omnivore.energy = Math.min(omnivore.maxEnergy, omnivore.energy + carnivore.energy / 2);
-                        }
-                        cellsWithFights.add(cellKey);
-                    }
-                }
-                [...organisms].forEach(org => { if (organisms.includes(org)) org.update(); });
-                
-                time++;
-                draw();
-                updateStats();
-                
-                if (time % chartUpdateFrequency === 0) {
-                    timeHistory.push(time);
-                    plantHistory.push(organisms.filter(o => o instanceof Plant).length);
-                    herbivoreHistory.push(organisms.filter(o => o instanceof Herbivore).length);
-                    carnivoreHistory.push(organisms.filter(o => o instanceof Carnivore).length);
-                    omnivoreHistory.push(organisms.filter(o => o instanceof Omnivore).length);
-                    populationChart.update();
-                }
-
-                if (organisms.length === 0) {
-                    simulationRunning = false;
-                    clearInterval(simulationInterval);
-                    startStopBtn.textContent = `Died @ ${formatTime(time)}`;
-                    startStopBtn.disabled = true;
-                    startStopBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'bg-teal-500', 'hover:bg-teal-600');
-                    startStopBtn.classList.add('bg-gray-700', 'cursor-not-allowed');
-                    copyResultBtn.classList.remove('hidden');
-                    copySettingsBtn.classList.add('hidden');
-                    saveSettingsBtn.classList.add('hidden');
-                }
+           function simulationStep() {
+    if (!simulationRunning) return;
+    updateSpatialGrid();
+    const cellsWithFights = new Set();
+    for (const org of organisms) {
+        if (!(org instanceof Carnivore)) continue;
+        const cellKey = `${org.x},${org.y}`;
+        if (cellsWithFights.has(cellKey)) continue;
+        const cell = spatialGrid[org.y][org.x];
+        const carnivoresInCell = cell.filter(o => o instanceof Carnivore);
+        const omnivoresInCell = cell.filter(o => o instanceof Omnivore);
+        if (carnivoresInCell.length > 0 && omnivoresInCell.length > 0) {
+            const carnivore = carnivoresInCell[0];
+            const omnivore = omnivoresInCell[0];
+            const carnivorePower = carnivore.energy * carnivore.combatBonus;
+            if (carnivorePower >= omnivore.energy) {
+                omnivore.die();
+                carnivore.energy = Math.min(carnivore.maxEnergy, carnivore.energy + omnivore.energy / 2);
+            } else {
+                carnivore.die();
+                omnivore.energy = Math.min(omnivore.maxEnergy, omnivore.energy + carnivore.energy / 2);
             }
+            cellsWithFights.add(cellKey);
+        }
+    }
+    [...organisms].forEach(org => { if (organisms.includes(org)) org.update(); });
+    
+    time++;
+    draw();
+    updateStats();
+    
+    if (time % chartUpdateFrequency === 0) {
+        timeHistory.push(time);
+        plantHistory.push(organisms.filter(o => o instanceof Plant).length);
+        herbivoreHistory.push(organisms.filter(o => o instanceof Herbivore).length);
+        carnivoreHistory.push(organisms.filter(o => o instanceof Carnivore).length);
+        omnivoreHistory.push(organisms.filter(o => o instanceof Omnivore).length);
+
+        // Keep only last 1000 entries in all histories
+        if (timeHistory.length > 1000) {
+            timeHistory = timeHistory.slice(-1000);
+            plantHistory = plantHistory.slice(-1000);
+            herbivoreHistory = herbivoreHistory.slice(-1000);
+            carnivoreHistory = carnivoreHistory.slice(-1000);
+            omnivoreHistory = omnivoreHistory.slice(-1000);
+        }
+
+        populationChart.update();
+    }
+
+    if (organisms.length === 0) {
+        simulationRunning = false;
+        clearInterval(simulationInterval);
+        startStopBtn.textContent = `Died @ ${formatTime(time)}`;
+        startStopBtn.disabled = true;
+        startStopBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'bg-teal-500', 'hover:bg-teal-600');
+        startStopBtn.classList.add('bg-gray-700', 'cursor-not-allowed');
+        copyResultBtn.classList.remove('hidden');
+        copySettingsBtn.classList.add('hidden');
+        saveSettingsBtn.classList.add('hidden');
+    }
+}
 
             function draw() {
                 ctx.fillStyle = '#1f2937';
