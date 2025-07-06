@@ -601,11 +601,11 @@
 
         // Keep only last 1000 entries in all histories
         if (timeHistory.length > 1000) {
-            timeHistory = timeHistory.slice(-1000);
-            plantHistory = plantHistory.slice(-1000);
-            herbivoreHistory = herbivoreHistory.slice(-1000);
-            carnivoreHistory = carnivoreHistory.slice(-1000);
-            omnivoreHistory = omnivoreHistory.slice(-1000);
+            timeHistory.splice(0, timeHistory.length - 1000);
+            plantHistory.splice(0, plantHistory.length - 1000);
+            herbivoreHistory.splice(0, herbivoreHistory.length - 1000);
+            carnivoreHistory.splice(0, carnivoreHistory.length - 1000);
+            omnivoreHistory.splice(0, omnivoreHistory.length - 1000);
         }
 
         populationChart.update();
